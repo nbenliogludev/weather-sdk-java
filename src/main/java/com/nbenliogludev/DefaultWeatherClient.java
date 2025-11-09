@@ -9,11 +9,14 @@ import com.nbenliogludev.exception.WeatherNetworkException;
 import com.nbenliogludev.exception.WeatherNotFoundException;
 import com.nbenliogludev.exception.WeatherParsingException;
 import com.nbenliogludev.exception.WeatherSdkException;
+import com.nbenliogludev.internal.WeatherCache;
 import com.nbenliogludev.model.SysInfo;
 import com.nbenliogludev.model.TemperatureInfo;
 import com.nbenliogludev.model.WeatherInfo;
 import com.nbenliogludev.model.WeatherResponse;
 import com.nbenliogludev.model.WindInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,11 +25,18 @@ import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author nbenliogludev
  */
 public class DefaultWeatherClient implements WeatherClient {
+
+    private static final Logger log = LoggerFactory.getLogger(DefaultWeatherClient.class);
 
     private static final String BASE_URL =
             "https://api.openweathermap.org/data/2.5/weather";
@@ -34,13 +44,25 @@ public class DefaultWeatherClient implements WeatherClient {
     private static final int CONNECT_TIMEOUT_MS = 5000;
     private static final int READ_TIMEOUT_MS = 5000;
 
+    private static final int MAX_CITIES = 10;
+    private static final long CACHE_TTL_MILLIS = 10 * 60 * 1000L;
+    private static final long POLLING_INTERVAL_MILLIS = 5 * 60 * 1000L;
+
     private final String apiKey;
     private final Mode mode;
     private final Gson gson = new Gson();
+    private final WeatherCache cache;
+
+    private ScheduledExecutorService scheduler;
 
     public DefaultWeatherClient(String apiKey, Mode mode) {
         this.apiKey = apiKey;
         this.mode = mode;
+        this.cache = new WeatherCache(MAX_CITIES, CACHE_TTL_MILLIS);
+
+        if (mode == Mode.POLLING) {
+            startPolling();
+        }
     }
 
     @Override
@@ -49,10 +71,83 @@ public class DefaultWeatherClient implements WeatherClient {
             throw new WeatherSdkException("City name must not be null or empty");
         }
 
+        String key = normalizeCityKey(city);
+
+        WeatherResponse cached = cache.getIfFresh(key);
+        if (cached != null) {
+            log.debug("Cache hit for city '{}'", city);
+            return cached;
+        }
+
+        log.debug("Cache miss for city '{}', fetching from API", city);
+        WeatherResponse fresh = fetchFromApi(city);
+        cache.put(key, fresh);
+        return fresh;
+    }
+
+    @Override
+    public String getCurrentWeatherJson(String city) throws WeatherSdkException {
+        WeatherResponse response = getCurrentWeather(city);
+        return gson.toJson(response);
+    }
+
+    @Override
+    public void shutdown() {
+        if (scheduler != null) {
+            log.info("Shutting down polling scheduler for API key '{}'", apiKey);
+            scheduler.shutdownNow();
+        }
+    }
+
+    private void startPolling() {
+        log.info("Starting polling scheduler for API key '{}'", apiKey);
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+
+        scheduler.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    refreshAll();
+                } catch (Throwable t) {
+                    log.warn("Polling cycle failed for API key '{}'", apiKey, t);
+                }
+            }
+        }, 0, POLLING_INTERVAL_MILLIS, TimeUnit.MILLISECONDS);
+    }
+
+    private void refreshAll() {
+        Map<String, WeatherResponse> snapshot = cache.snapshot();
+        if (snapshot.isEmpty()) {
+            log.debug("Polling skipped for API key '{}': cache is empty", apiKey);
+            return;
+        }
+
+        log.debug("Polling {} cached cities for API key '{}'", snapshot.size(), apiKey);
+
+        for (Map.Entry<String, WeatherResponse> entry : snapshot.entrySet()) {
+            String key = entry.getKey();
+            WeatherResponse current = entry.getValue();
+
+            String cityName = (current != null && current.getName() != null)
+                    ? current.getName()
+                    : key;
+
+            try {
+                WeatherResponse fresh = fetchFromApi(cityName);
+                cache.put(key, fresh);
+                log.debug("Refreshed weather for city '{}'", cityName);
+            } catch (WeatherSdkException e) {
+                log.warn("Failed to refresh weather for city '{}'", cityName, e);
+            }
+        }
+    }
+
+    private WeatherResponse fetchFromApi(String city) throws WeatherSdkException {
         HttpResult result;
         try {
             result = executeRequest(city);
         } catch (IOException e) {
+            log.warn("Network error when calling weather API for city '{}'", city, e);
             throw new WeatherNetworkException("Network error when calling weather API", e);
         }
 
@@ -64,27 +159,23 @@ public class DefaultWeatherClient implements WeatherClient {
             }
 
             if (result.statusCode == HttpURLConnection.HTTP_NOT_FOUND) {
+                log.info("City '{}' not found by weather API", city);
                 throw new WeatherNotFoundException(message, result.body);
             }
 
+            log.warn("Weather API error for city '{}': status {}", city, result.statusCode);
             throw new WeatherApiException(message, result.statusCode, result.body);
         }
 
         try {
-            return mapToWeatherResponse(result.body);
+            WeatherResponse response = mapToWeatherResponse(result.body);
+            log.debug("Successfully parsed weather response for city '{}'", city);
+            return response;
         } catch (Exception e) {
+            log.error("Failed to parse weather API response for city '{}'", city, e);
             throw new WeatherParsingException("Failed to parse weather API response", e);
         }
     }
-
-    @Override
-    public String getCurrentWeatherJson(String city) throws WeatherSdkException {
-        WeatherResponse response = getCurrentWeather(city);
-        return gson.toJson(response);
-    }
-
-    @Override
-    public void shutdown() {}
 
     private HttpResult executeRequest(String city) throws IOException {
         String encodedCity = URLEncoder.encode(city, "UTF-8");
@@ -104,6 +195,7 @@ public class DefaultWeatherClient implements WeatherClient {
         String body = readStream(stream);
         conn.disconnect();
 
+        log.debug("HTTP {} from weather API for city '{}'", status, city);
         return new HttpResult(status, body);
     }
 
@@ -132,6 +224,7 @@ public class DefaultWeatherClient implements WeatherClient {
                 return obj.get("message").getAsString();
             }
         } catch (Exception ignored) {
+            log.debug("Failed to extract error message from API response");
         }
         return null;
     }
@@ -216,6 +309,10 @@ public class DefaultWeatherClient implements WeatherClient {
             return 0L;
         }
         return obj.get(key).getAsLong();
+    }
+
+    private String normalizeCityKey(String city) {
+        return city.trim().toLowerCase(Locale.ROOT);
     }
 
     private static final class HttpResult {
