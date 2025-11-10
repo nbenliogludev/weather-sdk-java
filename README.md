@@ -107,11 +107,6 @@ Add dependency on the SDK
       </dependency>
   </dependencies>
   ```
-After this, run:
-
-```bash
-mvn clean compile
-```
 
 ## Setting the OpenWeather API key
 
