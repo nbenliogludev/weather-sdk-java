@@ -64,7 +64,9 @@ First, clone the SDK repository and install it locally:
 
 ```bash
 git clone https://github.com/nbenliogludev/weather-sdk-java.git
+
 cd weather-sdk-java
+
 mvn clean install
 ```
 
@@ -78,12 +80,6 @@ mvn clean install
         <version>1.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
-```
-
-#### After this, run:
-
-```bash
-mvn clean compile
 ```
 
 ## Installation (via JitPack)
