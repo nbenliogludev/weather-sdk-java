@@ -102,9 +102,9 @@ You need an API key from OpenWeather
 
 The SDK itself accepts a String apiKey:
 
-```bash
-WeatherClient client = WeatherClients.create("YOUR_API_KEY", Mode.ON_DEMAND);
-```
+# Basic Usage Examples
+
+## Example 1: ON_DEMAND mode
 
 ```bash
     WeatherClient client = WeatherClients.create(apiKey, Mode.ON_DEMAND);
@@ -124,3 +124,50 @@ WeatherClient client = WeatherClients.create("YOUR_API_KEY", Mode.ON_DEMAND);
 
     WeatherClients.destroy(apiKey);
 ```
+
+**ON_DEMAND behavior**
+
+On each call:
+
+- If there is a **fresh** cache entry for the city (younger than 10 minutes),  
+  the SDK returns it immediately from memory.
+- Otherwise:
+  - calls the OpenWeather API,
+  - updates the cache with the fresh data,
+  - returns the fresh response.
+
+In this mode **no background threads** are created.
+
+## Example 2: POLLING mode
+
+```bash
+      WeatherClient client = WeatherClients.create(apiKey, Mode.POLLING);
+
+      System.out.println("=== First call (may hit API) ===");
+      WeatherResponse first = client.getCurrentWeather(city);
+      System.out.println("Temp: " + first.getTemperature().getTemp());
+
+      System.out.println("\nWaiting 15 seconds to let polling refresh cache...");
+      Thread.sleep(15_000L);
+
+      System.out.println("\n=== Second call (likely from cache) ===");
+      WeatherResponse second = client.getCurrentWeather(city);
+      System.out.println("Temp: " + second.getTemperature().getTemp());
+
+      WeatherClients.destroy(apiKey);
+```
+
+**POLLING behavior**
+
+- The **first** call for a given city:
+  - hits the OpenWeather API,
+  - stores the result in the in-memory cache.
+
+- A background scheduler periodically refreshes **all cached cities** from OpenWeather.
+
+- As long as polling is successful:
+  - cache entries remain fresh,
+  - most `getCurrentWeather` calls return immediately from memory (near zero latency).
+
+
+
