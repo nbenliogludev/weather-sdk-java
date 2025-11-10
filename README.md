@@ -42,18 +42,6 @@ The SDK is designed to be:
 
 ---
 
-## Installation
-
-### Build from source
-
-Clone the repository and run:
-
-```bash
-mvn clean install
-```
-
----
-
 ## Tests
 
 ### The project includes both unit and integration tests
@@ -63,10 +51,40 @@ Run tests:
 ```bash
 mvn test
 ```
+## Installation
+
+### Installation (via mvn clean install)
+
+You build the SDK locally and install it into your local Maven repository (`~/.m2/repository`).  
+Then any other Maven project on your machine can use it as a normal dependency.
+
+#### Clone and build the SDK
+
+First, clone the SDK repository and install it locally:
+
+```bash
+git clone https://github.com/nbenliogludev/weather-sdk-java.git
+
+cd weather-sdk-java
+
+mvn clean install
+```
+
+#### Add a dependency on the SDK in your application
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.nbenliogludev</groupId>
+        <artifactId>weather-sdk-java</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </dependency>
+</dependencies>
+```
 
 ## Installation (via JitPack)
 
-### 1. Add JitPack repository
+#### Add JitPack repository
 
 In your **application** `pom.xml` (not in the SDK itself), add:
 
@@ -89,11 +107,6 @@ Add dependency on the SDK
       </dependency>
   </dependencies>
   ```
-After this, run:
-
-```bash
-mvn clean compile
-```
 
 ## Setting the OpenWeather API key
 
