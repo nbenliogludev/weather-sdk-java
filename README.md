@@ -82,7 +82,6 @@ Add dependency on the SDK
 
 ```xml
   <dependencies>
-      <!-- Your weather SDK from GitHub via JitPack -->
       <dependency>
           <groupId>com.github.nbenliogludev</groupId>
           <artifactId>weather-sdk-java</artifactId>
@@ -98,9 +97,7 @@ mvn clean compile
 
 ## Setting the OpenWeather API key
 
-You need an API key from OpenWeather
-
-The SDK itself accepts a String apiKey:
+You need an API key from OpenWeather. The SDK itself accepts a String apiKey.
 
 # Basic Usage Examples
 
