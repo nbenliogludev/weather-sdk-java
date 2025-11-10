@@ -56,9 +56,9 @@ mvn clean install
 
 ## Tests
 
-### The project includes both unit and integration tests.
+### The project includes both unit and integration tests
 
-#### Running tests
+Run tests:
 
 ```bash
 mvn test
