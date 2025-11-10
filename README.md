@@ -106,18 +106,20 @@ You need an API key from OpenWeather. The SDK itself accepts a String apiKey.
 ```bash
 WeatherClient client = WeatherClients.create(apiKey, Mode.ON_DEMAND);
 
+// Fetch current weather for the given city
 WeatherResponse response = client.getCurrentWeather(city);
 
-System.out.println("City: " + response.getName());
-System.out.println("Weather: " + response.getWeather().getMain()
-        + " (" + response.getWeather().getDescription() + ")");
-System.out.println("Temperature: " + response.getTemperature().getTemp());
-System.out.println("Feels like: " + response.getTemperature().getFeelsLike());
-System.out.println("Wind speed: " + response.getWind().getSpeed());
+// You can now use these values in your application logic (UI, logging, etc.)
+String cityName = response.getName();
+String mainWeather = response.getWeather().getMain();
+String description = response.getWeather().getDescription();
+double temperature = response.getTemperature().getTemp();
+double feelsLike = response.getTemperature().getFeelsLike();
+double windSpeed = response.getWind().getSpeed();
 
+// Or, if you prefer a JSON representation produced by the SDK:
 String json = client.getCurrentWeatherJson(city);
-System.out.println("\nJSON from SDK:");
-System.out.println(json);
+// Use `json` as needed (e.g. log, send over HTTP, store, etc.)
 
 WeatherClients.destroy(apiKey);
 ```
@@ -140,16 +142,18 @@ In this mode **no background threads** are created.
 ```bash
 WeatherClient client = WeatherClients.create(apiKey, Mode.POLLING);
 
-System.out.println("=== First call (may hit API) ===");
+// First call for this city (may hit the OpenWeather API and populate the cache)
 WeatherResponse first = client.getCurrentWeather(city);
-System.out.println("Temp: " + first.getTemperature().getTemp());
+double firstTemp = first.getTemperature().getTemp();
+// use firstTemp in your application logic
 
-System.out.println("\nWaiting 15 seconds to let polling refresh cache...");
+// Wait to give the polling scheduler time to refresh the cache in background
 Thread.sleep(15_000L);
 
-System.out.println("\n=== Second call (likely from cache) ===");
+// Second call for the same city (likely served from cache with near-zero latency)
 WeatherResponse second = client.getCurrentWeather(city);
-System.out.println("Temp: " + second.getTemperature().getTemp());
+double secondTemp = second.getTemperature().getTemp();
+// use secondTemp in your application logic
 
 WeatherClients.destroy(apiKey);
 ```
