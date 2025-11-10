@@ -104,22 +104,22 @@ You need an API key from OpenWeather. The SDK itself accepts a String apiKey.
 ## Example 1: ON_DEMAND mode
 
 ```bash
-  WeatherClient client = WeatherClients.create(apiKey, Mode.ON_DEMAND);
+WeatherClient client = WeatherClients.create(apiKey, Mode.ON_DEMAND);
 
-  WeatherResponse response = client.getCurrentWeather(city);
+WeatherResponse response = client.getCurrentWeather(city);
 
-  System.out.println("City: " + response.getName());
-  System.out.println("Weather: " + response.getWeather().getMain()
-          + " (" + response.getWeather().getDescription() + ")");
-  System.out.println("Temperature: " + response.getTemperature().getTemp());
-  System.out.println("Feels like: " + response.getTemperature().getFeelsLike());
-  System.out.println("Wind speed: " + response.getWind().getSpeed());
+System.out.println("City: " + response.getName());
+System.out.println("Weather: " + response.getWeather().getMain()
+        + " (" + response.getWeather().getDescription() + ")");
+System.out.println("Temperature: " + response.getTemperature().getTemp());
+System.out.println("Feels like: " + response.getTemperature().getFeelsLike());
+System.out.println("Wind speed: " + response.getWind().getSpeed());
 
-  String json = client.getCurrentWeatherJson(city);
-  System.out.println("\nJSON from SDK:");
-  System.out.println(json);
+String json = client.getCurrentWeatherJson(city);
+System.out.println("\nJSON from SDK:");
+System.out.println(json);
 
-  WeatherClients.destroy(apiKey);
+WeatherClients.destroy(apiKey);
 ```
 
 **ON_DEMAND behavior**
