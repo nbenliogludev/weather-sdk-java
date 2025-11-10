@@ -65,12 +65,12 @@ mvn test
 ```
 ## Installation
 
-### 1. Installation (via mvn clean install)
+### Installation (via mvn clean install)
 
 You build the SDK locally and install it into your local Maven repository (`~/.m2/repository`).  
 Then any other Maven project on your machine can use it as a normal dependency.
 
-### 1. Clone and build the SDK
+#### 1. Clone and build the SDK
 
 First, clone the SDK repository and install it locally:
 
@@ -80,7 +80,7 @@ cd weather-sdk-java
 mvn clean install
 ```
 
-### Add a dependency on the SDK in your application
+#### Add a dependency on the SDK in your application
 
 ```xml
 <dependencies>
@@ -119,7 +119,7 @@ mvn clean compile
 
 ## Installation (via JitPack)
 
-### 1. Add JitPack repository
+#### Add JitPack repository
 
 In your **application** `pom.xml` (not in the SDK itself), add:
 
