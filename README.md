@@ -104,22 +104,22 @@ You need an API key from OpenWeather. The SDK itself accepts a String apiKey.
 ## Example 1: ON_DEMAND mode
 
 ```bash
-    WeatherClient client = WeatherClients.create(apiKey, Mode.ON_DEMAND);
+  WeatherClient client = WeatherClients.create(apiKey, Mode.ON_DEMAND);
 
-    WeatherResponse response = client.getCurrentWeather(city);
+  WeatherResponse response = client.getCurrentWeather(city);
 
-    System.out.println("City: " + response.getName());
-    System.out.println("Weather: " + response.getWeather().getMain()
-            + " (" + response.getWeather().getDescription() + ")");
-    System.out.println("Temperature: " + response.getTemperature().getTemp());
-    System.out.println("Feels like: " + response.getTemperature().getFeelsLike());
-    System.out.println("Wind speed: " + response.getWind().getSpeed());
+  System.out.println("City: " + response.getName());
+  System.out.println("Weather: " + response.getWeather().getMain()
+          + " (" + response.getWeather().getDescription() + ")");
+  System.out.println("Temperature: " + response.getTemperature().getTemp());
+  System.out.println("Feels like: " + response.getTemperature().getFeelsLike());
+  System.out.println("Wind speed: " + response.getWind().getSpeed());
 
-    String json = client.getCurrentWeatherJson(city);
-    System.out.println("\nJSON from SDK:");
-    System.out.println(json);
+  String json = client.getCurrentWeatherJson(city);
+  System.out.println("\nJSON from SDK:");
+  System.out.println(json);
 
-    WeatherClients.destroy(apiKey);
+  WeatherClients.destroy(apiKey);
 ```
 
 **ON_DEMAND behavior**
@@ -138,20 +138,20 @@ In this mode **no background threads** are created.
 ## Example 2: POLLING mode
 
 ```bash
-      WeatherClient client = WeatherClients.create(apiKey, Mode.POLLING);
+WeatherClient client = WeatherClients.create(apiKey, Mode.POLLING);
 
-      System.out.println("=== First call (may hit API) ===");
-      WeatherResponse first = client.getCurrentWeather(city);
-      System.out.println("Temp: " + first.getTemperature().getTemp());
+System.out.println("=== First call (may hit API) ===");
+WeatherResponse first = client.getCurrentWeather(city);
+System.out.println("Temp: " + first.getTemperature().getTemp());
 
-      System.out.println("\nWaiting 15 seconds to let polling refresh cache...");
-      Thread.sleep(15_000L);
+System.out.println("\nWaiting 15 seconds to let polling refresh cache...");
+Thread.sleep(15_000L);
 
-      System.out.println("\n=== Second call (likely from cache) ===");
-      WeatherResponse second = client.getCurrentWeather(city);
-      System.out.println("Temp: " + second.getTemperature().getTemp());
+System.out.println("\n=== Second call (likely from cache) ===");
+WeatherResponse second = client.getCurrentWeather(city);
+System.out.println("Temp: " + second.getTemperature().getTemp());
 
-      WeatherClients.destroy(apiKey);
+WeatherClients.destroy(apiKey);
 ```
 
 **POLLING behavior**
