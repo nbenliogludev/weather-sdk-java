@@ -80,25 +80,6 @@ mvn clean install
 </dependencies>
 ```
 
-```xml
-<repositories>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-</repositories>
-  ```
-Add dependency on the SDK
-
-```xml
-  <dependencies>
-      <dependency>
-          <groupId>com.github.nbenliogludev</groupId>
-          <artifactId>weather-sdk-java</artifactId>
-          <version>main-SNAPSHOT</version>
-      </dependency>
-  </dependencies>
-  ```
 After this, run:
 
 ```bash
