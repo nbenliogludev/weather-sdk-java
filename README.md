@@ -42,18 +42,6 @@ The SDK is designed to be:
 
 ---
 
-## Installation
-
-### Build from source
-
-Clone the repository and run:
-
-```bash
-mvn clean install
-```
-
----
-
 ## Tests
 
 ### The project includes both unit and integration tests
