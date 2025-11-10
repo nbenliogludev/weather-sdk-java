@@ -101,7 +101,7 @@ You need an API key from OpenWeather. The SDK itself accepts a String apiKey.
 
 # Basic Usage Examples
 
-## Example 1: ON_DEMAND mode
+## Example ON_DEMAND mode
 
 ```bash
 WeatherClient client = WeatherClients.create(apiKey, Mode.ON_DEMAND);
@@ -117,9 +117,8 @@ double temperature = response.getTemperature().getTemp();
 double feelsLike = response.getTemperature().getFeelsLike();
 double windSpeed = response.getWind().getSpeed();
 
-// Or, if you prefer a JSON representation produced by the SDK:
+// If you prefer a JSON representation produced by the SDK:
 String json = client.getCurrentWeatherJson(city);
-// Use `json` as needed (e.g. log, send over HTTP, store, etc.)
 
 WeatherClients.destroy(apiKey);
 ```
@@ -137,7 +136,7 @@ On each call:
 
 In this mode **no background threads** are created.
 
-## Example 2: POLLING mode
+## Example POLLING mode
 
 ```bash
 WeatherClient client = WeatherClients.create(apiKey, Mode.POLLING);
@@ -145,7 +144,6 @@ WeatherClient client = WeatherClients.create(apiKey, Mode.POLLING);
 // First call for this city (may hit the OpenWeather API and populate the cache)
 WeatherResponse first = client.getCurrentWeather(city);
 double firstTemp = first.getTemperature().getTemp();
-// use firstTemp in your application logic
 
 // Wait to give the polling scheduler time to refresh the cache in background
 Thread.sleep(15_000L);
@@ -153,7 +151,6 @@ Thread.sleep(15_000L);
 // Second call for the same city (likely served from cache with near-zero latency)
 WeatherResponse second = client.getCurrentWeather(city);
 double secondTemp = second.getTemperature().getTemp();
-// use secondTemp in your application logic
 
 WeatherClients.destroy(apiKey);
 ```
