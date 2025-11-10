@@ -52,6 +52,8 @@ Clone the repository and run:
 mvn clean install
 ```
 
+---
+
 ## Tests
 
 ### The project includes both unit and integration tests.
