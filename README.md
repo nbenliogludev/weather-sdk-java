@@ -63,11 +63,11 @@ Run tests:
 ```bash
 mvn test
 ```
-## Installation (local Maven, via `mvn install`)
+## Installation
 
-### 1. Add JitPack repository
+### 1. Installation (via mvn clean install)
 
-This is an alternative to JitPack: you build the SDK locally and install it into your local Maven repository (`~/.m2/repository`).  
+You build the SDK locally and install it into your local Maven repository (`~/.m2/repository`).  
 Then any other Maven project on your machine can use it as a normal dependency.
 
 ### 1. Clone and build the SDK
@@ -82,7 +82,7 @@ mvn clean install
 
 ### Add a dependency on the SDK in your application
 
-```bash
+```xml
 <dependencies>
     <dependency>
         <groupId>com.nbenliogludev</groupId>
