@@ -58,7 +58,7 @@ mvn test
 You build the SDK locally and install it into your local Maven repository (`~/.m2/repository`).  
 Then any other Maven project on your machine can use it as a normal dependency.
 
-#### 1. Clone and build the SDK
+#### Clone and build the SDK
 
 First, clone the SDK repository and install it locally:
 
@@ -80,7 +80,7 @@ mvn clean install
 </dependencies>
 ```
 
-After this, run:
+#### After this, run:
 
 ```bash
 mvn clean compile
