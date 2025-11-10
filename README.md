@@ -64,4 +64,63 @@ Run tests:
 mvn test
 ```
 
+## Installation (via JitPack)
 
+### 1. Add JitPack repository
+
+In your **application** `pom.xml` (not in the SDK itself), add:
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+  ```
+Add dependency on the SDK
+
+```xml
+  <dependencies>
+      <!-- Your weather SDK from GitHub via JitPack -->
+      <dependency>
+          <groupId>com.github.nbenliogludev</groupId>
+          <artifactId>weather-sdk-java</artifactId>
+          <version>main-SNAPSHOT</version>
+      </dependency>
+  </dependencies>
+  ```
+After this, run:
+
+```bash
+mvn clean compile
+```
+
+## Setting the OpenWeather API key
+
+You need an API key from OpenWeather
+
+The SDK itself accepts a String apiKey:
+
+```bash
+WeatherClient client = WeatherClients.create("YOUR_API_KEY", Mode.ON_DEMAND);
+```
+
+```bash
+    WeatherClient client = WeatherClients.create(apiKey, Mode.ON_DEMAND);
+
+    WeatherResponse response = client.getCurrentWeather(city);
+
+    System.out.println("City: " + response.getName());
+    System.out.println("Weather: " + response.getWeather().getMain()
+            + " (" + response.getWeather().getDescription() + ")");
+    System.out.println("Temperature: " + response.getTemperature().getTemp());
+    System.out.println("Feels like: " + response.getTemperature().getFeelsLike());
+    System.out.println("Wind speed: " + response.getWind().getSpeed());
+
+    String json = client.getCurrentWeatherJson(city);
+    System.out.println("\nJSON from SDK:");
+    System.out.println(json);
+
+    WeatherClients.destroy(apiKey);
+```
