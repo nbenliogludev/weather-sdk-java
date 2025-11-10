@@ -1,4 +1,4 @@
-# Weather SDK (Java)
+# Weather Java SDK
 
 A small Java SDK for accessing the [OpenWeather](https://openweathermap.org/api) **Current Weather** API.
 
